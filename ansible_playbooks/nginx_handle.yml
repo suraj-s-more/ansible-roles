@@ -1,0 +1,15 @@
+
+- name: Custom failure condition
+  hosts: amazon
+  become: yes
+
+  tasks:
+    - name: Check nginx service
+      shell: systemctl status nginx
+      register: nginx_status
+      ignore_errors: yes
+
+    - name: Fail if nginx is inactive
+      fail:
+        msg: "NGINX is NOT running!"
+      when: "'inactive' in nginx_status.stdout"

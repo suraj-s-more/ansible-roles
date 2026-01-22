@@ -1,0 +1,14 @@
+- name: Port check
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Check if port 80 is used
+      shell: ss -lntp | grep :80
+      register: port_check
+      ignore_errors: yes
+
+    - name: Fail if port 80 already in use
+      fail:
+        msg: "❌ Port 80 already in use"
+      when: port_check.rc == 0
