@@ -1,0 +1,174 @@
+const express = require('express');
+const mysql = require('mysql2');
+const cors = require('cors');
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+// ================================
+// MariaDB connection (root only)
+// ================================
+const db = mysql.createConnection({
+  user: 'root',                        // root user
+  socketPath: '/var/lib/mysql/mysql.sock', // use unix socket for root
+  database: 'sadhixdb'                 // database created via Ansible
+});
+
+db.connect(err => {
+  if (err) {
+    console.error("MariaDB Connection Failed:", err);
+    process.exit(1); // stop Node if DB fails
+  }
+  console.log("MariaDB Connected");
+});
+
+// ================================
+// Create table if not exists
+// ================================
+db.query(`
+CREATE TABLE IF NOT EXISTS students (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  course VARCHAR(100)
+)`);
+
+// ================================
+// API Endpoints
+// ================================
+
+// Initialize DB
+app.get('/init', (req, res) => {
+  res.send("Database Initialized");
+});
+
+// Add student
+app.post('/student', (req, res) => {
+  const { name, email, course } = req.body;
+  db.query(
+    "INSERT INTO students VALUES (NULL, ?, ?, ?)",
+    [name, email, course],
+    (err) => {
+      if (err) return res.status(500).send("Error adding student");
+      res.send("Student Added");
+    }
+  );
+});
+
+// Fetch all students
+app.get('/students', (req, res) => {
+  db.query("SELECT * FROM students", (err, results) => {
+    if (err) return res.status(500).send("Error fetching students");
+    res.json(results);
+  });
+});
+
+// ================================
+// Start Node server
+// ================================
+
+const NODE_PORT = process.env.NODE_PORT || 3000; // fallback to 3000
+app.listen(NODE_PORT, () => {
+  console.log(`Node API running on port ${NODE_PORT}`);
+});
+
+frontend template 
+vim roles/nodejs/templates/index.html.j2
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sadhix Students</title>
+  <meta charset="utf-8">
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 40px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    input {
+      padding: 6px;
+      margin: 4px;
+    }
+    button {
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Student Management</h1>
+
+<h3>Add Student</h3>
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
+<input id="course" placeholder="Course">
+<button onclick="addStudent()">Add</button>
+
+<h3>Students</h3>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Course</th>
+    </tr>
+  </thead>
+  <tbody id="students"></tbody>
+</table>
+
+<script>
+async function loadStudents() {
+  const res = await fetch('/api/students');
+  const data = await res.json();
+
+  const tbody = document.getElementById('students');
+  tbody.innerHTML = '';
+
+  data.forEach(s => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${s.id}</td>
+        <td>${s.name}</td>
+        <td>${s.email}</td>
+        <td>${s.course}</td>
+      </tr>
+    `;
+  });
+}
+
+async function addStudent() {
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const course = document.getElementById('course').value;
+
+  await fetch('/api/student', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, course })
+  });
+
+  loadStudents();
+}
+
+loadStudents();
+</script>
+
+</body>
+</html>
+

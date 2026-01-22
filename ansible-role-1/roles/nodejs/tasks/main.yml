@@ -1,0 +1,60 @@
+- name: Install NodeJS repo
+  shell: curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+  args:
+    creates: /etc/yum.repos.d/nodesource-el.repo
+  become: yes
+
+- name: Install NodeJS
+  yum:
+    name: nodejs
+    state: present
+  become: yes
+
+- name: Create backend directory
+  file:
+    path: "{{ backend_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+- name: Create frontend directory
+  file:
+    path: "{{ frontend_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+- name: Copy frontend index.html
+  template:
+    src: index.html.j2
+    dest: "{{ frontend_dir }}/index.html"
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Copy Node.js app template
+  template:
+    src: app.js.j2
+    dest: "{{ backend_dir }}/app.js"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart node app
+  become: yes
+
+- name: Install npm dependencies
+  npm:
+    path: "{{ backend_dir }}"
+    name: "{{ item }}"
+    state: present
+  loop:
+    - express
+    - mysql2
+    - cors
+  become: yes
+

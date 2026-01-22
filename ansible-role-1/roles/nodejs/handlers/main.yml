@@ -1,0 +1,7 @@
+- name: restart node app
+  shell: |
+    pkill -f "{{ backend_dir }}/app.js" || true
+    cd {{ backend_dir }}
+    nohup node app.js > /var/log/sadhix-node.log 2>&1 &
+  args:
+    executable: /bin/bash

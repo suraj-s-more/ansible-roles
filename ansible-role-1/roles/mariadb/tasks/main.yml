@@ -1,0 +1,16 @@
+- name: Install MariaDB
+  yum:
+    name:
+      - mariadb105-*
+    state: present
+
+- name: Start MariaDB
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name:  Create database using SQL (root)
+  shell: |
+    mysql -u root -e "CREATE DATABASE IF NOT EXISTS {{ db_name }};"
+

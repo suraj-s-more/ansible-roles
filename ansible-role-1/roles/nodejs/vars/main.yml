@@ -1,0 +1,4 @@
+app_root: /opt/sadhix-app
+backend_dir: "{{ app_root }}/backend"
+frontend_dir: "{{ app_root }}/frontend"
+node_port: 3000
