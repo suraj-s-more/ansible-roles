@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: yes
+    vars:
+    users:
+      - harry
+      - shamu 
+      - dhamu
+    package_name: httpd
+    tasks:
+    - name: create users
+      user:
+        name: "{{users}}"
+        state: present
+      loop: "{{users}}"

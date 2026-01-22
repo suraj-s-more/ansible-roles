@@ -1,0 +1,7 @@
+---
+- hosts : localhost
+  become: yes
+  tasks:
+  - name: reject dev from list 
+    debug:
+      msg: "{{['dev','prod','uat'] | reject('equalto','dev') | list }}"

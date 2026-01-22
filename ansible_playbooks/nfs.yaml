@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: yes
+
+  vars:
+    pkg: nfs-kernel-server
+
+  tasks:
+  - name: install nfs
+    package:
+      name: "{{ pkg }}"
+      state: present
+
+    notify: restart nfs
+
+  handlers: 
+  - name: restart nfs
+    service:
+      name: "{{ pkg }}"
+      state: restarted
+      state: enabled
+

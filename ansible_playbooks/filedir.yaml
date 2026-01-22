@@ -1,0 +1,10 @@
+---
+- hosts: all 
+  become: yes
+  tasks:
+  - file:
+      path: /opt/bat
+      state: directory
+  - file:
+      path: /opt/bat/ok.txt  
+      state: touch

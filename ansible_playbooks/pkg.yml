@@ -1,0 +1,11 @@
+vars:
+  box:
+    - httpd
+    - nfs
+    - samba
+  tasks:
+    - name : install packages
+        user:
+          name: "{{list}}"
+          state: present
+        loop: "{{box}}"

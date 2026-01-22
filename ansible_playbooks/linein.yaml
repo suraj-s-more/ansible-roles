@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+  - name: add environment variable
+    lineinfile:
+      path: /tmp/app.conf
+      line: "ENV=production"
+      create: yes
+
+  - name: update env variable
+    lineinfile:
+       path: /tmp/app.conf
+       regexp: "^ENV="
+       line: "ENV=staging"
+  - name: add to the next line
+    lineinfile:
+       path: /tmp/app.conf
+       line: "TIMEOUT=60"
+       insertafter: "^ENV="

@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: yes
+
+  vars:
+    pkg_name: nginx 
+  tasks:
+  - name: install nginx
+    package:
+      name: "{{pkg_name}}"
+      state: present

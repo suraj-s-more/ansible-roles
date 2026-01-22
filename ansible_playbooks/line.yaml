@@ -1,0 +1,11 @@
+---
+
+- hosts: all
+  become: yes
+
+  tasks: 
+   - name: add env vari
+     lineinfile:
+       path: /tmp/test.txt
+       line: "how are you"
+       create: yes

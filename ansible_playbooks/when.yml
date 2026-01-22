@@ -1,0 +1,18 @@
+---
+
+- hosts: all
+  become: yes
+
+  tasks:
+  - name: install httpd
+    yum:
+      name: httpd
+      state: present
+    when: ansible_os_family == 'AlmaLinux'
+
+  - name: install httpd
+    apt:
+      name: apache2
+      state: present
+    when: ansible_os_family == 'ubuntu'
+

@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: yes
+
+  tasks: 
+  - name: install packages
+    package: 
+      name: "{{item}}"
+      state: present
+    loop:
+      - nginx
+      - htop
+      - samba
